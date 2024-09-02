@@ -14,12 +14,25 @@ cd pwn-docker
 ```
 
 ## Usage
+
+```bash
+./create.sh
 ```
-./start.sh
-```
+
 Create a container. Type 'y' to bind to ~/ctf and make a non-ephemeral container.
 
-```
-./run.sh
+```bash
+./connect.sh
 ```
 Connect to the non-ephemeral container if possible.
+
+
+## Testing debugging
+
+```bash
+gcc dbg-test.c -o dbg-test-static -static -g
+gcc dbg-test.c -o dbg-test-dynamic -g
+ROSETTA_DEBUGSERVER_PORT=1234 ./dbg-test-static
+
+gdb ./dbg-test-static -ex 'target localhost:1234'
+```

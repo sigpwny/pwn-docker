@@ -33,6 +33,6 @@ Connect to the non-ephemeral container if possible.
 gcc dbg-test.c -o dbg-test-static -static -g
 gcc dbg-test.c -o dbg-test-dynamic -g
 ROSETTA_DEBUGSERVER_PORT=1234 ./dbg-test-static
-
-gdb ./dbg-test-static -ex 'target localhost:1234'
+# in a seperate terminal
+gdb ./dbg-test-static -ex 'target remote localhost:1234'
 ```

@@ -1,2 +1,3 @@
 .gdb_history
-*.out
+dbg-test-static
+dbg-test-dynamic

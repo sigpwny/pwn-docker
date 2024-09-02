@@ -1,32 +1,43 @@
 #!/bin/bash
 set -e
 
-docker build . -t sigpwny/pwn-docker
+docker build --platform=linux/amd64 . -t sigpwny/pwn-docker
 
 read -p "Would you like to bind $HOME/ctf to /ctf in the container? [y/n] " -n 1 -r reply
-echo 	# (optional) move to a new line
+echo
+
+read -p "Would you like to start in the background? [y/n] " -n 1 -r background
+echo
+
+if [[ $background =~ ^[Yy]$ ]]
+then
+	background="-d"
+else
+	background=""
+fi
+
 if [[ $reply =~ ^[Yy]$ ]]
 then
-	# Create ~/ctf if it doesn't exist
-	mkdir -p ~/ctf
-	# Create the container
-	# RUN mount -t virtiofs rosetta /media/rosetta
-
-	docker run -it \
-		--volume="$HOME/ctf:/ctf:rw" \
-		--security-opt seccomp=unconfined \
-		--cap-add=SYS_PTRACE \
-		--privileged \
-		-p 1234:1234 \
-		--name pwn-docker \
-		sigpwny/pwn-docker
+	if [ ! -d "$HOME/ctf" ]; then
+		echo "Creating ~/ctf"
+		mkdir -p ~/ctf
+	fi
+	volume="-v $HOME/ctf:/ctf:rw"
 else
-	echo "Creating temporary container, changes will not be saved."
-	docker run -it --rm \
-		--volume="`pwd`:/ctf:rw" \
-		--security-opt seccomp=unconfined \
-		--cap-add=SYS_PTRACE \
-		--privileged \
-		-p 1234:1234 \
-		sigpwny/pwn-docker
+	volume="-v `pwd`:/ctf:rw"
+fi
+
+docker run -it \
+	$volume \
+	--security-opt seccomp=unconfined \
+	--cap-add=SYS_PTRACE \
+	-p 1234:1234 \
+	-p 2222:22 \
+	--name pwn-docker \
+	sigpwny/pwn-docker $background
+
+if [[ $background =~ ^[Yy]$ ]]
+then
+	echo "Started pwn-docker in the background"
+	echo "ssh -p 2222 root@localhost"
 fi

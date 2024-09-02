@@ -11,9 +11,11 @@ echo
 
 if [[ $background =~ ^[Yy]$ ]]
 then
-	background="-d"
+	background_flag="-d"
+	command='/background-startup.sh'
 else
-	background=""
+	background_flag=""
+	command='/container-startup.sh'
 fi
 
 if [[ $reply =~ ^[Yy]$ ]]
@@ -23,21 +25,28 @@ then
 		mkdir -p ~/ctf
 	fi
 	volume="-v $HOME/ctf:/ctf:rw"
+	destroy=""
 else
 	volume="-v `pwd`:/ctf:rw"
+	destroy="--rm"
 fi
 
-docker run -it \
+echo $background_flag
+
+docker run --interactive -t \
 	$volume \
+	$destroy \
 	--security-opt seccomp=unconfined \
 	--cap-add=SYS_PTRACE \
 	-p 1234:1234 \
 	-p 2222:22 \
 	--name pwn-docker \
-	sigpwny/pwn-docker $background
+	sigpwny/pwn-docker \
+	$command \
+	$background_flag
 
 if [[ $background =~ ^[Yy]$ ]]
 then
 	echo "Started pwn-docker in the background"
-	echo "ssh -p 2222 root@localhost"
+	echo "ssh -p 2222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@localhost"
 fi

@@ -1,17 +1,19 @@
 # pwn-docker
-A docker container for pwn with sigpwny
 
-## Prereqs
+A docker container for pwn with SIGPwny on Apple Silicon
 
-+ Install Docker
-+ If you are on Apple Silicon, install version `4.16.0` or above. Then enable 'Use Virtualization Framework' in 'Settings > General' and 'Use Rosetta for x86/amd64 on Apple Silicon' in 'Settings > Features in Development'
-+ Note that you must be on MacOS 12.3 or above https://github.com/gyf304/vmcli/issues/30#issuecomment-1066118646
+## Setup
+
++ Install docker or upgrade to latest (tested on `v4.33.0`)
+
++ Enable 'Use Virtualization framework' and 'Use Rosetta for x86_64/amd64 emulation on Apple Silicon'
+
+![](./requirements.png)
 
 ## Installation
 
 ```bash
-git clone https://github.com/sigpwny/pwn-docker.git
-cd pwn-docker
+git clone https://github.com/sigpwny/pwn-docker.git --depth 1 && cd pwn-docker
 ```
 
 ## Usage
@@ -20,13 +22,17 @@ cd pwn-docker
 ./create.sh
 ```
 
-Create a container. Type 'y' to bind to ~/ctf and make a non-ephemeral container.
+Create a container.
+
+> Type 'y' to bind to ~/ctf and make a non-ephemeral container.
 
 ```bash
 ./connect.sh
 ```
 
 Connect to the non-ephemeral container if possible.
+
+> Not needed if you are running the container in the background instead, just connect via `ssh -p 2222 root@localhost`
 
 
 ## Testing debugging
@@ -35,6 +41,7 @@ Connect to the non-ephemeral container if possible.
 gcc dbg-test.c -o dbg-test-static -static -g
 gcc dbg-test.c -o dbg-test-dynamic -g
 ROSETTA_DEBUGSERVER_PORT=1234 ./dbg-test-static
-# in a seperate terminal
+
+# in a different terminal,
 gdb ./dbg-test-static -ex 'target remote localhost:1234'
 ```
